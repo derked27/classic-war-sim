@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scoreboard — Fury Practice Dummy</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="boardpage">
+    <div class="bar2">
+      <h1>Scoreboard</h1>
+      <span class="spacer"></span>
+      <label>Fight length
+        <select id="lenSel">
+          <option value="30">30 sec</option>
+          <option value="60">1 min</option>
+          <option value="90">1 min 30</option>
+          <option value="120">2 min</option>
+        </select>
+      </label>
+      <a class="btn" href="index.html">Back to the sim</a>
+    </div>
+    <div class="sub" id="boardNote">Loading…</div>
+    <table class="rep board" id="boardTable"></table>
+    <div class="pager">
+      <button class="btn" id="btnPrev">Previous</button>
+      <span id="pageLabel" class="sub"></span>
+      <button class="btn" id="btnNext">Next</button>
+    </div>
+  </main>
+  <script type="module" src="src/board.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "classic-war-sim",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Real-time Classic WoW Fury warrior practice dummy that imports WoWSims characters",
+  "scripts": {
+    "start": "python -m http.server 8765",
+    "test": "node tests/run.js",
+    "data": "node tools/build_data.mjs",
+    "gearsets": "node tools/build_gearsets.mjs"
+  }
+}

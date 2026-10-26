@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Classic War Sim — Fury Practice Dummy</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <h1>Fury Practice Dummy</h1>
+      <span id="charLine" class="sub">No character loaded</span>
+    </div>
+    <div class="chips" id="statChips"></div>
+    <div class="topbtns">
+      <select id="profileSel" title="Saved characters"><option value="">Unsaved character</option></select>
+      <button id="btnProfileDelete" class="btn" title="Delete the selected saved character" disabled>Delete</button>
+      <button id="btnImport" class="btn">Import character</button>
+      <a class="btn" href="scoreboard.html" target="_blank" rel="noopener">Scoreboard</a>
+      <button id="btnKeys" class="btn">Keybinds</button>
+      <button id="btnSettings" class="btn">Settings</button>
+    </div>
+  </header>
+
+  <main class="stage" id="stage">
+    <section class="hud">
+      <div class="hud-left">
+        <div class="unit me">
+          <div class="unit-head"><span id="meName">Warrior</span><span id="stanceText">Berserker Stance</span></div>
+        </div>
+        <div class="auras" id="auras"></div>
+      </div>
+
+      <div class="hud-center">
+        <div class="fctwrap"><div class="fctdps" id="fctDps">0 DPS</div><div class="countdown hidden" id="countdown"></div><div class="fct" id="fct"></div></div>
+        <div class="swingstack">
+          <div class="swing"><div class="bar"><div id="mhFill" class="fill"></div><span class="sl">MH <em id="mhName"></em></span><span id="hsFlag" class="flag">HEROIC STRIKE QUEUED</span><span class="st" id="mhTime">0.0</span></div></div>
+          <div class="swing"><div class="bar"><div id="ohFill" class="fill"></div><span class="sl">OH <em id="ohName"></em></span><span class="st" id="ohTime">0.0</span></div></div>
+          <div class="bar gcd"><div id="gcdFill" class="fill"></div></div>
+          <div class="bar rage"><div id="rageFill" class="fill"></div><span id="rageText">0</span></div>
+        </div>
+        <div class="actionbar" id="actionbar"></div>
+        <div class="toastzone"><div id="toast" class="toast"></div></div>
+      </div>
+
+      <div class="hud-right">
+        <div class="unit boss">
+          <div class="unit-head"><span id="bossName">Target Dummy</span><span id="bossHpText">100%</span></div>
+          <div class="bar hp"><div id="bossHp" class="fill"></div><div class="tick" id="execTick" title="Execute range"></div><span id="bossHpNum"></span></div>
+          <div class="sub" id="bossHint"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bottom">
+      <div class="panel">
+        <h2>Damage meter</h2>
+        <div class="dpsbig"><span id="dpsNow">0</span><small>DPS</small><span id="fightTime">0:00.0</span></div>
+        <div class="sub" id="simRefLine">Sim reference: –</div>
+        <div id="meter" class="meter"></div>
+      </div>
+      <div class="panel">
+        <h2>Combat log</h2>
+        <div id="log" class="log"></div>
+      </div>
+    </section>
+
+    <div class="startzone" id="startZone">
+      <div class="startbox">
+        <div id="startMsg">Import a character to begin.</div>
+        <div class="startrow">
+          <label>Your name
+            <input type="text" id="nameIn" maxlength="20" size="18" placeholder="Name for the scoreboard" autocomplete="off">
+          </label>
+          <a class="btn" href="scoreboard.html" target="_blank" rel="noopener">Scoreboard</a>
+        </div>
+        <div class="startrow">
+          <label>Fight length
+            <select id="lenSel">
+              <option value="30">30 sec</option>
+              <option value="60">1 min</option>
+              <option value="90">1 min 30</option>
+              <option value="120">2 min</option>
+            </select>
+          </label>
+          <label>Mode
+            <select id="modeSel">
+              <option value="full">Full pull</option>
+              <option value="execute">Execute drill (boss at 25%)</option>
+            </select>
+          </label>
+          <label>Countdown
+            <select id="cdSel">
+              <option value="0">None</option>
+              <option value="3">3 sec</option>
+              <option value="5">5 sec</option>
+              <option value="10">10 sec</option>
+            </select>
+          </label>
+          <label>Starting rage
+            <input type="number" id="rageIn" min="0" max="100" step="5" value="0">
+          </label>
+        </div>
+        <div class="startrow">
+          <label>Gear
+            <select id="pullGearSel" title="Swap to a default gear set; talents, buffs and rotation are kept"></select>
+          </label>
+          <button id="btnImportPull" class="btn" type="button">Import character</button>
+        </div>
+        <div class="startrow">
+          <button id="btnPull" class="btn primary" disabled>Pull</button>
+        </div>
+        <div class="sub" id="pullHint"></div>
+      </div>
+    </div>
+  </main>
+
+  <dialog id="importDlg">
+    <form method="dialog" class="dlg">
+      <h2>Import from WoWSims</h2>
+      <p class="sub">In the classic WoWSims warrior sim use <b>Export → JSON</b> and paste the result here. Gear, enchants, consumes, buffs, debuffs, talents, rotation and encounter are used.</p>
+      <textarea id="importText" spellcheck="false" placeholder="Paste WoWSims JSON here…"></textarea>
+      <label class="row">Default gear <select id="gearSetSel" title="Replace the gear with a default set, keeping talents, buffs and rotation"><option value="">Choose a phase…</option></select></label>
+      <label class="row">Save as profile (optional) <input type="text" id="profileName" size="24" placeholder="e.g. Naxx BiS, Pre-raid"></label>
+      <div id="importMsg" class="importmsg"></div>
+      <div class="dlgbtns">
+        <span class="spacer"></span>
+        <button type="button" class="btn" id="btnImportCancel">Close</button>
+        <button type="button" class="btn primary" id="btnImportGo">Import</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="keysDlg">
+    <form method="dialog" class="dlg">
+      <h2>Keybinds</h2>
+      <p class="sub">Click a button, then press the key (mouse side button or scroll wheel) you want. Modifiers like Shift, Ctrl and Alt work. Esc cancels, Backspace clears. One key can fire several actions, like a macro: share it between one global-cooldown ability and any number of off-GCD ones (trinkets, potion, Bloodrage, Heroic Strike). Two GCD abilities on one key swap instead.</p>
+      <div id="keysList" class="keyslist"></div>
+      <div class="dlgbtns">
+        <button type="button" class="btn" id="btnKeysReset">Reset to defaults</button>
+        <button type="button" class="btn" id="btnKeysExport">Export</button>
+        <button type="button" class="btn" id="btnKeysImport">Import</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn primary" id="btnKeysClose">Done</button>
+      </div>
+      <textarea id="keysJson" class="hidden" spellcheck="false" placeholder="Paste keybind JSON, then click Import again"></textarea>
+    </form>
+  </dialog>
+
+  <dialog id="settingsDlg">
+    <form method="dialog" class="dlg">
+      <h2>Settings</h2>
+      <label class="row">Game speed
+        <select id="setSpeed"><option value="1">1× (real time)</option><option value="0.5">0.5× (slow motion)</option><option value="0.25">0.25× (very slow)</option><option value="4">4× (testing only)</option></select>
+      </label>
+      <p class="sub">Rage uses the live game's conversion (about 231 at level 60). WoWSims uses ~198, so it gives roughly 15% more rage from white hits and your DPS will read lower here than in a WoWSims run.</p>
+      <label class="row">Auto stance swap <input type="checkbox" id="setAutoStance"></label>
+      <p class="sub">When on, pressing Overpower swaps to Battle Stance first, and Whirlwind or Recklessness swaps to Berserker Stance, like a stance macro. Rage above your Tactical Mastery limit is lost on each swap, as in game.</p>
+      <label class="row">Show boss time hints <input type="checkbox" id="setHints"></label>
+      <label class="row">Random seed (blank = random each pull) <input type="text" id="setSeed" size="10"></label>
+      <label class="row">Sim reference runs <input type="number" id="setRuns" min="20" max="1000" step="10"></label>
+      <div class="dlgbtns"><span class="spacer"></span><button type="button" class="btn primary" id="btnSettingsClose">Done</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="reportDlg" class="wide">
+    <form method="dialog" class="dlg">
+      <div id="reportBody"></div>
+      <div class="dlgbtns">
+        <span class="spacer"></span>
+        <button type="button" class="btn" id="btnReportClose">Close</button>
+        <button type="button" class="btn primary" id="btnReportRetry">Pull again</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="src/ui.js"></script>
+</body>
+</html>
