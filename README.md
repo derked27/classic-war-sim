@@ -1,7 +1,7 @@
 # Classic War Sim — Fury Practice Dummy
 
 A real-time practice tool for Classic WoW Fury warriors. Import your character from WoWSims (the JSON export) and fight a
-target dummy with your own gear, enchants, consumes and talents (full world buffs are always on), then get graded against what the sim says
+target dummy with your own gear, enchants and talents (buffs, consumes, debuffs and the target are standardized for every parse), then get graded against what the sim says
 you should be doing.
 
 It is built to practice the fiddly parts of the rotation:

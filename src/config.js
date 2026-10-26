@@ -66,9 +66,44 @@ export function applyGearSet(json, set) {
   return out;
 }
 
-export function buildConfig(json, gd) {
+// Every parse runs with the same buffs, consumes, debuffs and target, whatever the imported profile had set, so
+// scores are comparable. Only the character itself (race, gear, enchants, talents, rotation) comes from the import.
+const STANDARD = {
+  raidBuffs: {
+    giftOfTheWild: 'TristateEffectImproved', strengthOfEarthTotem: 'TristateEffectImproved',
+    graceOfAirTotem: 'TristateEffectImproved', battleShout: 'TristateEffectImproved',
+    trueshotAura: true, leaderOfThePack: true,
+  },
+  debuffs: {
+    faerieFire: true, improvedScorch: true, exposeArmor: 'TristateEffectImproved', sunderArmor: true,
+    curseOfRecklessness: true, giftOfArthas: true,
+  },
+  buffs: {
+    rallyingCryOfTheDragonslayer: true, saygesFortune: 'SaygesDamage', spiritOfZandalar: true,
+    songflowerSerenade: true, warchiefsBlessing: true, fengusFerocity: true, moldarsMoxie: true,
+  },
+  consumes: {
+    food: 'FoodSmokedDesertDumpling', agilityElixir: 'ElixirOfTheMongoose', strengthBuff: 'JujuPower',
+    attackPowerBuff: 'JujuMight', mainHandImbue: 'Windfury', offHandImbue: 'ElementalSharpeningStone',
+    defaultPotion: 'MightyRagePotion', sapperExplosive: 'SapperGoblinSapper', hitConsumable: 'DarkDesire',
+  },
+  encounter: {
+    duration: 120, durationVariation: 15, executeProportion20: 0.2, executeProportion25: 0.25, executeProportion35: 0.35,
+    targets: [{
+      id: 213336, name: 'Level 60', level: 63, mobType: 'MobTypeUndead',
+      stats: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,805,0,0,0,0,0,0,0,0,3731,0,0,0,0,0,0,0,127393,0,0,0,0,0,0,0,0,0],
+      minBaseDamage: 3000, damageSpread: 0.3333, swingSpeed: 2, parryHaste: true,
+    }],
+  },
+};
+
+export function buildConfig(importedJson, gd) {
   const warnings = [];
-  const p = json.player;
+  const json = { ...importedJson, raidBuffs: STANDARD.raidBuffs, debuffs: STANDARD.debuffs, encounter: STANDARD.encounter };
+  const p = importedJson.player && {
+    ...importedJson.player, buffs: STANDARD.buffs, consumes: STANDARD.consumes, profession1: 'Engineering',
+  };
+  json.player = p;
   if (!p || p.class !== 'ClassWarrior') warnings.push('This tool only supports warriors; the imported character is not one.');
 
   const talents = parseTalents(p.talentsString);
@@ -163,12 +198,7 @@ export function buildConfig(json, gd) {
   }
   if (rb.leaderOfThePack) { flat.crit += 3; note('Leader of the Pack', '+3% crit'); }
 
-  // Every parse runs with full world buffs, whatever the imported profile had enabled.
-  const b = {
-    ...(p.buffs || {}),
-    rallyingCryOfTheDragonslayer: true, songflowerSerenade: true, fengusFerocity: true,
-    spiritOfZandalar: true, warchiefsBlessing: true, saygesFortune: 'SaygesDamage',
-  };
+  const b = p.buffs || {};
   if (b.rallyingCryOfTheDragonslayer) { flat.crit += 5; flat.ap += 140; note('Rallying Cry', '+5% crit, +140 AP'); }
   if (b.songflowerSerenade) { flat.str += 15; flat.agi += 15; flat.crit += 5; note('Songflower', '+15 Str/Agi, +5% crit'); }
   if (b.fengusFerocity) { flat.ap += 200; note("Fengus' Ferocity", '+200 AP'); }
