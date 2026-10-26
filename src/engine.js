@@ -583,7 +583,9 @@ export class Sim {
   // (rage above the Tactical Mastery limit is lost, same as in game), then cast.
   cast(id, opts = {}) {
     let s = this.status(id);
-    if (!s.ready && s.reason === 'stance' && opts.autoStance) {
+    // The swap happens even if the ability itself is on cooldown / not usable yet, like the macro would.
+    const wrongStance = s.info && !(s.info.stance & this.stance) && !this.dead && s.reason !== 'unknown' && s.reason !== 'unavailable';
+    if (!s.ready && wrongStance && opts.autoStance) {
       const need = s.info.stance;
       const target = need & STANCE.BATTLE ? 'stBattle' : 'stBerserker';
       const sw = this.status(target);
