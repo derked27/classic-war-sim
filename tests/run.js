@@ -240,6 +240,7 @@ test('parse tiers follow the Warcraft Logs colors', () => {
   assert.equal(parseDisplay(100), 100);
 });
 
+const LOCAL = { shared: false };   // never touch the real shared board from tests
 const atest = async (name, fn) => {
   try { await fn(); passed++; console.log('ok   ', name); } catch (err) { console.error('FAIL ', name, '\n', err.message); process.exitCode = 1; }
 };
@@ -247,21 +248,21 @@ const atest = async (name, fn) => {
 await atest('scoreboard keeps the best DPS per player and fight length, and parses come from rank', async () => {
   const st = memStore();
   const e = (id, name, length, dps, ts) => ({ id, name, length, dps, ts });
-  const first = await submitScore(e('a', 'Ann', 120, 1000, 1), st);
-  assert.equal((await listScores(120, st)).entries[0].parse, 100);     // alone on the board
-  const worse = await submitScore(e('a', 'Ann', 120, 900, 2), st);
+  const first = await submitScore(e('a', 'Ann', 120, 1000, 1), st, LOCAL);
+  assert.equal((await listScores(120, st, LOCAL)).entries[0].parse, 100);     // alone on the board
+  const worse = await submitScore(e('a', 'Ann', 120, 900, 2), st, LOCAL);
   assert.equal(worse.improved, false);
   assert.equal(worse.best.dps, 1000);
-  await submitScore(e('a', 'Ann', 60, 800, 3), st);
-  await submitScore(e('b', 'Ann', 120, 700, 4), st);                    // same name, different UUID
-  await submitScore(e('c', 'Cy', 120, 500, 5), st);
-  const l120 = (await listScores(120, st)).entries;
+  await submitScore(e('a', 'Ann', 60, 800, 3), st, LOCAL);
+  await submitScore(e('b', 'Ann', 120, 700, 4), st, LOCAL);                    // same name, different UUID
+  await submitScore(e('c', 'Cy', 120, 500, 5), st, LOCAL);
+  const l120 = (await listScores(120, st, LOCAL)).entries;
   assert.deepEqual(l120.map((x) => x.id), ['a', 'b', 'c']);
   assert.deepEqual(l120.map((x) => x.parse), [100, 50, 0]);
-  assert.equal((await listScores(60, st)).entries.length, 1);
-  await submitScore(e('a', 'Annie', 120, 950, 6), st);                  // rename applies, score stays
-  assert.equal((await listScores(120, st)).entries[0].name, 'Annie');
-  assert.equal((await listScores(120, st)).entries[0].dps, 1000);
+  assert.equal((await listScores(60, st, LOCAL)).entries.length, 1);
+  await submitScore(e('a', 'Annie', 120, 950, 6), st, LOCAL);                  // rename applies, score stays
+  assert.equal((await listScores(120, st, LOCAL)).entries[0].name, 'Annie');
+  assert.equal((await listScores(120, st, LOCAL)).entries[0].dps, 1000);
   assert.ok(first.best);
 });
 

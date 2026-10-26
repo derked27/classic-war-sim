@@ -83,22 +83,23 @@ async function remoteSubmit(entry) {
 // Public API
 // ---------------------------------------------------------------------------------------------------------------
 // Save a pull. Resolves with { best, improved, shared } where `shared` is false if the remote board was unreachable.
-export async function submitScore(entry, storage = defaultStorage()) {
+// Pass { shared: false } (tests do) to stay off the shared board even when a Firebase URL is configured.
+export async function submitScore(entry, storage = defaultStorage(), { shared: useShared = isShared() } = {}) {
   const map = loadLocal(storage);
   const prev = map[`${entry.id}:${entry.length}`];
   const best = mergeEntry(map, entry);
   try { storage.setItem(SCORES_KEY, JSON.stringify(map)); } catch { /* ignore */ }
   let shared = true;
-  if (isShared()) {
+  if (useShared) {
     try { await remoteSubmit(best); } catch { shared = false; }
   }
   return { best, improved: !prev || best.ts === entry.ts, shared };
 }
 
 // All entries for a fight length, best first. Falls back to local entries if the remote board can't be read.
-export async function listScores(length, storage = defaultStorage()) {
+export async function listScores(length, storage = defaultStorage(), { shared: useShared = isShared() } = {}) {
   const local = Object.values(loadLocal(storage)).filter((e) => e.length === length);
-  if (!isShared()) return { entries: sortEntries(local), shared: false };
+  if (!useShared) return { entries: sortEntries(local), shared: false };
   try {
     const map = {};
     for (const e of [...await remoteList(length), ...local]) mergeEntry(map, e);
