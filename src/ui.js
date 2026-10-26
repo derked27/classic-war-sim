@@ -1068,6 +1068,8 @@ async function boot() {
   $('cdSel').value = String(app.settings.countdown ?? 3);
   $('rageIn').value = String(app.settings.startRage ?? 0);
   bindDialogs();
+  $('btnKeysPull').addEventListener('click', () => $('btnKeys').click());
+  $('btnSettingsPull').addEventListener('click', () => $('btnSettings').click());
   $('nameIn').value = getPlayer().name;
   $('nameIn').addEventListener('input', syncPull);
   $('nameIn').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); if (!$('btnPull').disabled) startPull(); } });
