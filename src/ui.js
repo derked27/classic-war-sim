@@ -58,7 +58,7 @@ const app = {
   warnings: [],
   simRef: null,          // {mean, sd, execMean, execSd, n}
   refToken: 0,
-  settings: { countdown: 3, startRage: 0, autoStance: false, length: 120, speed: 1, hints: false, seed: '', runs: 100, mode: 'full' },
+  settings: { countdown: 3, startRage: 0, autoStance: false, length: 60, speed: 1, hints: false, seed: '', runs: 100, mode: 'full' },
   binds: loadBinds(),
   rev: null,
   state: 'idle',         // idle | running | paused | finished
@@ -372,7 +372,7 @@ function startPull() {
   s.countdown = countdown;
   // The boss's health is what the bot would deal over the chosen length, so the fight ends near that time
   // if you play like the sim.
-  const chosen = Number($('lenSel').value) || 120;
+  const chosen = Number($('lenSel').value) || 60;
   const dur = drill ? cfg.encounter.duration : chosen;
   app.fightLen = dur;
   s.length = chosen;
@@ -949,6 +949,7 @@ window.addEventListener('keydown', (e) => {
   actions.forEach(dispatchAction);
 });
 
+// Mouse buttons are caught in the capture phase so nothing on the page can swallow them.
 window.addEventListener('mousedown', (e) => {
   if (app.listening) {
     const combo = comboFromMouseEvent(e);
@@ -959,7 +960,20 @@ window.addEventListener('mousedown', (e) => {
   const combo = comboFromMouseEvent(e);
   const actions = combo && app.rev && app.rev.get(combo);
   if (actions) { e.preventDefault(); actions.forEach(dispatchAction); }
-});
+}, true);
+// Middle and side buttons also act on release (browser Back/Forward, autoscroll). Block those, and let a bind be
+// picked on release too for browsers that don't report the side buttons on press.
+const onMouseRelease = (e) => {
+  if (e.button !== 1 && e.button !== 3 && e.button !== 4) return;
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (!app.listening && (tag === 'textarea' || tag === 'input')) return;
+  e.preventDefault();
+  if (app.listening) {
+    const combo = comboFromMouseEvent(e);
+    if (combo) assignBind(app.listening, combo);
+  }
+};
+['mouseup', 'auxclick', 'pointerup'].forEach((type) => window.addEventListener(type, onMouseRelease, true));
 let lastWheel = 0;
 window.addEventListener('wheel', (e) => {
   const combo = comboFromWheelEvent(e);
@@ -978,7 +992,6 @@ window.addEventListener('wheel', (e) => {
   lastWheel = now;
   actions.forEach(dispatchAction);
 }, { passive: false });
-window.addEventListener('auxclick', (e) => { if (e.button !== 0 && e.button !== 2) e.preventDefault(); });
 
 document.addEventListener('visibilitychange', () => { if (document.hidden && app.state === 'running') togglePause(); });
 
@@ -1088,7 +1101,7 @@ function bindDialogs() {
 async function boot() {
   loadSettings();
   $('modeSel').value = app.settings.mode || 'full';
-  $('lenSel').value = String(app.settings.length || 120);
+  $('lenSel').value = String(app.settings.length || 60);
   $('cdSel').value = String(app.settings.countdown ?? 3);
   $('rageIn').value = String(app.settings.startRage ?? 0);
   bindDialogs();
