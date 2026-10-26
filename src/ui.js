@@ -26,6 +26,16 @@ function loadProfiles() {
 function saveProfiles(p) {
   try { localStorage.setItem(PROFILES_KEY, JSON.stringify(p)); } catch { /* ignore */ }
 }
+function saveUnnamedProfile(text) {
+  const profiles = loadProfiles();
+  const base = (app.cfg.name || 'Imported character').trim();
+  let name = base;
+  for (let n = 2; profiles[name] && profiles[name] !== text; n++) name = `${base} (${n})`;
+  profiles[name] = text;
+  saveProfiles(profiles);
+  setActiveProfile(name);
+  renderProfiles(name);
+}
 function setActiveProfile(name) {
   try { localStorage.setItem(ACTIVE_KEY, name || ''); } catch { /* ignore */ }
 }
@@ -36,6 +46,8 @@ function renderProfiles(active) {
   sel.innerHTML = '<option value="">Unsaved character</option>' + names.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
   sel.value = names.includes(active) ? active : '';
   $('btnProfileDelete').disabled = !sel.value;
+  gearUi.profile = sel.value;
+  renderGearSelect();
 }
 
 const app = {
@@ -140,12 +152,23 @@ async function loadDefaultCharacter() {
   }
 }
 
-// The pull-panel dropdown lists only the default sets; "Custom" appears just while imported gear is in use.
-function syncGearSelect(key) {
+// The pull-panel Gear dropdown lists the default sets and your saved characters; "Custom" appears only while
+// imported gear that isn't saved is in use.
+const gearUi = { key: '', profile: '', setsHtml: '' };
+const PROFILE_PREFIX = 'profile:';
+
+function renderGearSelect() {
   const sel = $('pullGearSel');
-  [...sel.querySelectorAll('option[value=""]')].forEach((o) => o.remove());
-  if (!key) sel.insertAdjacentHTML('afterbegin', '<option value="">Custom</option>');
-  sel.value = key;
+  const names = Object.keys(loadProfiles()).sort((a, b) => a.localeCompare(b));
+  const value = gearUi.key || (gearUi.profile ? PROFILE_PREFIX + gearUi.profile : '');
+  sel.innerHTML = (value ? '' : '<option value="">Custom</option>') + gearUi.setsHtml
+    + (names.length ? `<optgroup label="Saved characters">${names.map((n) => `<option value="${esc(PROFILE_PREFIX + n)}">${esc(n)}</option>`).join('')}</optgroup>` : '');
+  sel.value = value;
+}
+
+function syncGearSelect(key) {
+  gearUi.key = key;
+  renderGearSelect();
 }
 
 function onCharacterChanged() {
@@ -962,19 +985,18 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && app
 function bindDialogs() {
   $('btnImport').addEventListener('click', () => {
     if (app.state === 'running') togglePause();
-    try {
-      $('importText').value = localStorage.getItem(JSON_KEY) || $('importText').value;
-      $('profileName').value = localStorage.getItem(ACTIVE_KEY) || '';
-    } catch { /* ignore */ }
+    // Start empty so nobody imports (or re-saves) someone else's character by accident.
+    $('importText').value = '';
+    $('profileName').value = '';
+    $('importMsg').innerHTML = '';
     $('importDlg').showModal();
   });
   $('btnImportPull').addEventListener('click', () => $('btnImport').click());
-  $('profileSel').addEventListener('change', () => {
-    const name = $('profileSel').value;
-    if (!name) return;
-    const text = loadProfiles()[name];
-    if (text && importFromText(text, { profile: name })) $('profileName').value = name;
-  });
+  const loadProfile = (name) => {
+    const text = name && loadProfiles()[name];
+    if (text && importFromText(text, { profile: name })) { $('profileName').value = name; toast(`${name} loaded`); }
+  };
+  $('profileSel').addEventListener('change', () => loadProfile($('profileSel').value));
   $('btnProfileDelete').addEventListener('click', () => {
     const name = $('profileSel').value;
     if (!name || !confirm(`Delete saved profile "${name}"?`)) return;
@@ -987,20 +1009,22 @@ function bindDialogs() {
   $('btnImportCancel').addEventListener('click', () => $('importDlg').close());
   $('btnImportGo').addEventListener('click', () => {
     const name = $('profileName').value.trim();
-    if (importFromText($('importText').value, { profile: name || null })) {
-      if (!name) setActiveProfile('');
+    const text = $('importText').value;
+    if (importFromText(text, { profile: name || null })) {
+      // An unnamed import is saved under the character's own name so it shows up in the Gear dropdown.
+      if (!name) saveUnnamedProfile(text);
       setTimeout(() => $('importDlg').close(), 600);
     }
   });
 
   // Both gear dropdowns (import dialog and pull panel) swap the current character's gear for a default set.
   const applyDefaultGear = async (sel) => {
+    if (sel.value.startsWith(PROFILE_PREFIX)) { loadProfile(sel.value.slice(PROFILE_PREFIX.length)); return; }
     const set = app.gearSets.find((s) => s.key === sel.value);
     if (!set) { sel.value = ''; return; }
     try {
-      const base = app.jsonText || $('importText').value.trim() || await (await fetch('example.json')).text();
+      const base = app.jsonText || await (await fetch('example.json')).text();
       const text = JSON.stringify(applyGearSet(JSON.parse(base), set));
-      $('importText').value = text;
       if (importFromText(text, { gearKey: set.key })) toast(`${set.label} gear loaded`);
     } catch (err) {
       $('importMsg').innerHTML = `<div class="e">Could not apply ${esc(set.label)} gear: ${esc(err.message)}</div>`;
@@ -1086,7 +1110,8 @@ async function boot() {
     app.gearSets = await (await fetch('src/data/gearsets.json')).json();
     const opts = app.gearSets.map((s) => `<option value="${esc(s.key)}">${esc(s.label)}</option>`).join('');
     $('gearSetSel').innerHTML = `<option value="">Choose a phase…</option>${opts}`;
-    $('pullGearSel').innerHTML = opts;
+    gearUi.setsHtml = opts;
+    renderGearSelect();
   } catch (err) {
     console.error(err);
   }
