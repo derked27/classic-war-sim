@@ -1,4 +1,4 @@
-import { checkForUpdate } from './update.js';
+import { isOutdated, hardRefresh } from './update.js';
 import { VERSION } from './version.js';
 import { Sim, STEP, STANCE } from './engine.js';
 import { buildConfig, sheetStats, applyGearSet } from './config.js';
@@ -359,7 +359,16 @@ function resetToIdle() {
   showStart();
 }
 
-function startPull() {
+// Checks the deployed version first; a stale page gets a refresh prompt (with a "Pull anyway" escape hatch).
+let ignoreStale = false;
+async function startPull() {
+  if (!app.cfg || !app.simRef) return;
+  if (!hasName()) { $('nameIn').focus(); return; }
+  if (!ignoreStale && await isOutdated()) { $('updateDlg').showModal(); return; }
+  beginPull();
+}
+
+function beginPull() {
   if (!app.cfg || !app.simRef) return;
   if (!hasName()) { $('nameIn').focus(); return; }
   setPlayerName($('nameIn').value);
@@ -1254,4 +1263,5 @@ function drawCumulative(cmp) {
 
 // Build stamp YYYYMMDDHHMMSS -> "v2026.10.26-1910"
 $('verTag').textContent = VERSION.replace(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2}).*$/, 'v$1.$2.$3-$4$5');
-checkForUpdate();
+$('lnkRefresh').addEventListener('click', (e) => { e.preventDefault(); hardRefresh(); });
+$('btnUpdateIgnore').addEventListener('click', () => { ignoreStale = true; $('updateDlg').close(); beginPull(); });
