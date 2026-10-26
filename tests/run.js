@@ -245,10 +245,11 @@ const atest = async (name, fn) => {
   try { await fn(); passed++; console.log('ok   ', name); } catch (err) { console.error('FAIL ', name, '\n', err.message); process.exitCode = 1; }
 };
 
-await atest('scoreboard keeps the best DPS per player and fight length, and parses come from rank', async () => {
+await atest('scoreboard keeps one entry per pull, and parses come from rank', async () => {
   const st = memStore();
   const e = (id, name, length, dps, ts) => ({ id, name, length, dps, ts });
   const first = await submitScore(e('a', 'Ann', 120, 1000, 1), st, LOCAL);
+  assert.equal(first.improved, true);
   assert.equal((await listScores(120, st, LOCAL)).entries[0].parse, 100);     // alone on the board
   const worse = await submitScore(e('a', 'Ann', 120, 900, 2), st, LOCAL);
   assert.equal(worse.improved, false);
@@ -257,13 +258,9 @@ await atest('scoreboard keeps the best DPS per player and fight length, and pars
   await submitScore(e('b', 'Ann', 120, 700, 4), st, LOCAL);                    // same name, different UUID
   await submitScore(e('c', 'Cy', 120, 500, 5), st, LOCAL);
   const l120 = (await listScores(120, st, LOCAL)).entries;
-  assert.deepEqual(l120.map((x) => x.id), ['a', 'b', 'c']);
-  assert.deepEqual(l120.map((x) => x.parse), [100, 50, 0]);
+  assert.deepEqual(l120.map((x) => x.dps), [1000, 900, 700, 500]);            // both of Ann's pulls are listed
+  assert.deepEqual(l120.map((x) => x.parse), [100, 67, 33, 0]);
   assert.equal((await listScores(60, st, LOCAL)).entries.length, 1);
-  await submitScore(e('a', 'Annie', 120, 950, 6), st, LOCAL);                  // rename applies, score stays
-  assert.equal((await listScores(120, st, LOCAL)).entries[0].name, 'Annie');
-  assert.equal((await listScores(120, st, LOCAL)).entries[0].dps, 1000);
-  assert.ok(first.best);
 });
 
 test('player identity persists and neighbors find who beat you and who you beat', () => {

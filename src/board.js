@@ -28,9 +28,9 @@ async function load() {
   const res = await listScores(length);
   entries = res.entries;
   page = 1;
-  $('boardNote').textContent = res.shared ? 'Shared scoreboard. Best parse per player.'
+  $('boardNote').textContent = res.shared ? 'Shared scoreboard. One entry per pull.'
     : res.offline ? 'Shared scoreboard unreachable; showing scores saved in this browser.'
-      : 'Scores are saved in this browser only. Best parse per player.';
+      : 'Scores are saved in this browser only. One entry per pull.';
   render();
   try { history.replaceState(null, '', `?length=${length}`); } catch { /* ignore */ }
 }

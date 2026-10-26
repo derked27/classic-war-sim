@@ -41,7 +41,7 @@ Enter your name in the pull window (required). Each browser gets a random player
 
 Tiers: gray 0-24, green 25-49, blue 50-74, purple 75-94, orange 95-98, pink 99, gold 100.
 
-The scoreboard keeps each player's best parse per fight length. The report shows who beat you and who you beat; `scoreboard.html` lists everyone, 100 per page.
+The scoreboard keeps one entry per pull. The report shows who beat you and who you beat; `scoreboard.html` lists everyone, 100 per page.
 
 Scores live in this browser only until you share them: create a Firebase Realtime Database, allow reads and writes on `/scores`, and set `firebaseUrl` in `src/scoreconfig.js`. Everyone using the same URL shares one board. Scores are submitted by the browser, so it runs on trust.
 

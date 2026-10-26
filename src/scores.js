@@ -1,4 +1,4 @@
-// Player identity and the scoreboard. One entry per player (UUID) per fight length, keeping the best DPS.
+// Player identity and the scoreboard. One entry per pull.
 // Entries live in localStorage; when SCORE_CONFIG.firebaseUrl is set they are also shared through Firebase's REST API.
 import { SCORE_CONFIG } from './scoreconfig.js';
 import { percentile } from './parse.js';
@@ -35,22 +35,17 @@ export function setPlayerName(name, storage = defaultStorage()) {
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-// Local store: { "<id>:<length>": entry }
+// Local store: { "<id>:<length>:<ts>": entry }
 // ---------------------------------------------------------------------------------------------------------------
 function loadLocal(storage) {
   try { return JSON.parse(storage.getItem(SCORES_KEY)) || {}; } catch { return {}; }
 }
 
-const better = (a, b) => a.dps > b.dps;
+const entryKey = (e) => `${e.id}:${e.length}:${e.ts}`;
 
-// Merge a pull into an entries map. Returns the entry now stored for that player and length.
+// Add a pull to an entries map. Returns the stored entry.
 export function mergeEntry(map, entry) {
-  const key = `${entry.id}:${entry.length}`;
-  const cur = map[key];
-  if (!cur) map[key] = { ...entry };
-  else if (better(entry, cur)) map[key] = { ...entry };
-  else map[key] = { ...cur, name: entry.name };   // a rename always applies
-  return map[key];
+  return (map[entryKey(entry)] = { ...entry });
 }
 
 // Best DPS first (earlier score wins a tie), with each entry's parse set from where it landed on the board.
@@ -60,7 +55,7 @@ export function sortEntries(list) {
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-// Firebase Realtime Database (REST, no SDK): /scores/<length>/<id>.json
+// Firebase Realtime Database (REST, no SDK): /scores/<length>/<id>-<ts>.json
 // ---------------------------------------------------------------------------------------------------------------
 const remoteUrl = () => (SCORE_CONFIG.firebaseUrl || '').replace(/\/+$/, '');
 export const isShared = () => !!remoteUrl();
@@ -72,28 +67,28 @@ async function remoteList(length) {
 }
 
 async function remoteSubmit(entry) {
-  const url = `${remoteUrl()}/scores/${entry.length}/${entry.id}.json`;
-  const cur = await (await fetch(url)).json();
-  const next = !cur || better(entry, cur) ? entry : { ...cur, name: entry.name };
-  const res = await fetch(url, { method: 'PUT', body: JSON.stringify(next) });
+  const url = `${remoteUrl()}/scores/${entry.length}/${entry.id}-${entry.ts}.json`;
+  const res = await fetch(url, { method: 'PUT', body: JSON.stringify(entry) });
   if (!res.ok) throw new Error(`scoreboard HTTP ${res.status}`);
 }
 
 // ---------------------------------------------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------------------------------------------
-// Save a pull. Resolves with { best, improved, shared } where `shared` is false if the remote board was unreachable.
+// Save a pull. Resolves with { best, improved, shared } (best: the player's top entry for that length, improved: this pull is it) where `shared` is false if the remote board was unreachable.
 // Pass { shared: false } (tests do) to stay off the shared board even when a Firebase URL is configured.
 export async function submitScore(entry, storage = defaultStorage(), { shared: useShared = isShared() } = {}) {
   const map = loadLocal(storage);
-  const prev = map[`${entry.id}:${entry.length}`];
-  const best = mergeEntry(map, entry);
+  const mine = Object.values(map).filter((e) => e.id === entry.id && e.length === entry.length);
+  const improved = mine.every((e) => entry.dps > e.dps);
+  mergeEntry(map, entry);
   try { storage.setItem(SCORES_KEY, JSON.stringify(map)); } catch { /* ignore */ }
   let shared = true;
   if (useShared) {
-    try { await remoteSubmit(best); } catch { shared = false; }
+    try { await remoteSubmit(entry); } catch { shared = false; }
   }
-  return { best, improved: !prev || best.ts === entry.ts, shared };
+  const best = improved ? entry : mine.reduce((a, b) => (b.dps > a.dps ? b : a));
+  return { best, improved, shared };
 }
 
 // All entries for a fight length, best first. Falls back to local entries if the remote board can't be read.
@@ -110,8 +105,8 @@ export async function listScores(length, storage = defaultStorage(), { shared: u
 }
 
 // The entry just ahead of you (someone who beat you) and just behind you (someone you beat), with 1-based ranks.
-export function neighbors(sorted, id) {
-  const i = sorted.findIndex((e) => e.id === id);
+export function neighbors(sorted, id, ts) {
+  const i = sorted.findIndex((e) => e.id === id && (ts === undefined || e.ts === ts));
   if (i < 0) return { rank: 0, above: null, below: null };
   return {
     rank: i + 1,

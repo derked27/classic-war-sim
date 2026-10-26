@@ -450,14 +450,14 @@ async function recordScore(report) {
 function renderBoard(report, entries, { player, entry, result, shared, offline }) {
   const el = $('boardBody');
   if (!el || app.report !== report) return;
-  const best = entries.find((e) => e.id === player.id) || entry;
-  // This pull's parse: where its DPS would land among everyone else's best scores.
-  const others = entries.filter((e) => e.id !== player.id);
+  const best = entries.find((e) => e.id === player.id) || entry;   // entries are sorted, so the first is your best
+  // This pull's parse: where its DPS would land among every other pull on the board.
+  const others = entries.filter((e) => !(e.id === player.id && e.ts === entry.ts));
   const pullParse = parseDisplay(percentile(others.filter((e) => e.dps > entry.dps).length + 1, others.length + 1));
   const pullTier = parseTier(pullParse);
   const pe = $('parseNow');
   if (pe) pe.innerHTML = `Parse <b class="p-${pullTier.key}">${pullParse}</b> <span class="sub">${pullTier.label}</span>`;
-  const nb = neighbors(entries, player.id);
+  const nb = neighbors(entries, player.id, entry.ts);
   const row = (e, rank) => {
     const shown = parseDisplay(e.parse);
     return `<tr${e.id === player.id ? ' class="me"' : ''}><td class="rk">${rank}</td><td class="p-${parseTier(shown).key}">${esc(e.name)}</td><td class="p-${parseTier(shown).key} pv">${shown}</td><td class="dv">${fmt(e.dps)} DPS</td></tr>`;
