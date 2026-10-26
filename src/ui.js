@@ -656,7 +656,7 @@ function render(final) {
     refs.el.classList.toggle('norage', st.reason === 'rage');
     refs.el.classList.toggle('nostance', st.reason === 'stance' && !app.settings.autoStance);
     refs.el.classList.toggle('queued', id === 'hs' && sim.hsQueued);
-    const opOpen = id === 'op' && sim.t < sim.opUntil && sim.rage >= 5 && st.reason !== 'cd' && (st.ready || (app.settings.autoStance && st.reason === 'stance'));
+    const opOpen = id === 'op' && sim.t < sim.opUntil && sim.rage >= 5 && st.reason !== 'cd' && (st.ready || (st.reason === 'gcd' && (info.stance & sim.stance || app.settings.autoStance)) || (app.settings.autoStance && st.reason === 'stance'));
     const glow = (id === 'exec' && st.ready) || opOpen;
     refs.el.classList.toggle('glow', glow);
   }
