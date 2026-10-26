@@ -58,7 +58,7 @@ const app = {
   warnings: [],
   simRef: null,          // {mean, sd, execMean, execSd, n}
   refToken: 0,
-  settings: { countdown: 3, startRage: 0, autoStance: false, length: 60, speed: 1, hints: false, seed: '', runs: 100, mode: 'full' },
+  settings: { countdown: 3, startRage: 0, autoStance: false, length: 60, speed: 1, hints: true, seed: '', runs: 100, mode: 'full' },
   binds: loadBinds(),
   rev: null,
   state: 'idle',         // idle | running | paused | finished
