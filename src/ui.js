@@ -368,6 +368,7 @@ function resetToIdle() {
   $('meter').innerHTML = '';
   $('dpsNow').textContent = '0';
   $('fightTime').textContent = '0:00.0';
+  $('fctTime').textContent = '0:00.0';
   $('bossHp').style.width = '100%';
   $('bossHpText').textContent = '100%';
   $('rageFill').style.width = '0%';
@@ -665,6 +666,7 @@ function render(final) {
   updateAuras(sim);
 
   // meter
+  $('fctTime').textContent = `${Math.floor(sim.t / 60)}:${(sim.t % 60).toFixed(1).padStart(4, '0')}`;
   const nowMs = performance.now();
   if (final || nowMs - app.meterAt > 250) {
     app.meterAt = nowMs;

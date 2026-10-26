@@ -181,6 +181,7 @@ table.rep .note { color: var(--muted); font-size: 12px; }
 /* line the player and target frames up with the swing timers (below the combat text area) */
 .hud-left, .hud-right { padding-top: 130px; }
 
+.fcttime { position: absolute; top: 20px; left: 0; right: 0; text-align: center; font-size: 22px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; text-shadow: 0 1px 2px #000; z-index: 2; pointer-events: none; }
 .countdown { position: absolute; inset: 0; display: grid; place-items: center; font-size: 84px; font-weight: 800; color: var(--gold);
   text-shadow: 0 0 12px rgba(0,0,0,.9), 0 3px 4px #000; z-index: 3; pointer-events: none; }
 .countdown.tick { animation: cdPop .9s ease-out; }
