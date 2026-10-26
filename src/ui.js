@@ -1,4 +1,5 @@
 import { checkForUpdate } from './update.js';
+import { VERSION } from './version.js';
 import { Sim, STEP, STANCE } from './engine.js';
 import { buildConfig, sheetStats, applyGearSet } from './config.js';
 import { newAccumulator, simStep, finishAccumulator, runBotFight, idealRun } from './bot.js';
@@ -1251,4 +1252,6 @@ function drawCumulative(cmp) {
   };
 }
 
+// Build stamp YYYYMMDDHHMMSS -> "v2026.10.26-1910"
+$('verTag').textContent = VERSION.replace(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2}).*$/, 'v$1.$2.$3-$4$5');
 checkForUpdate();
