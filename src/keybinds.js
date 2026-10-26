@@ -27,7 +27,7 @@ export const DEFAULT_BINDS = {
   bt: 'Digit1', ww: 'Digit2', hs: 'Digit3', hsCancel: 'KeyF', op: 'Digit4', exec: 'Digit5', ham: 'Digit6',
   dw: 'KeyZ', reck: 'KeyX', bf: 'KeyC', br: 'KeyV', pot: 'KeyG', sap: 'KeyB',
   trinket1: 'F1', trinket2: 'F2', stBattle: 'KeyQ', stBerserker: 'KeyE',
-  pull: 'Space', pause: 'Escape',
+  pull: 'Space', pause: 'KeyP',
 };
 
 const STORE_KEY = 'cws.binds.v1';
@@ -80,7 +80,11 @@ export function prettyCombo(combo) {
 export function loadBinds() {
   try {
     const raw = localStorage.getItem(STORE_KEY);
-    if (raw) return { ...DEFAULT_BINDS, ...JSON.parse(raw) };
+    if (raw) {
+      const binds = { ...DEFAULT_BINDS, ...JSON.parse(raw) };
+      if (binds.pause === 'Escape') binds.pause = DEFAULT_BINDS.pause;   // Esc used to pause; it no longer does
+      return binds;
+    }
   } catch { /* storage unavailable */ }
   return { ...DEFAULT_BINDS };
 }

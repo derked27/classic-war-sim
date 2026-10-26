@@ -132,9 +132,10 @@ export function simAverage(cfg, iterations = 100, { seed = 1000 } = {}) {
 export function newAccumulator() {
   return { dps: [], exec: [] };
 }
-export function simStep(cfg, acc, i, { seed = 1000 } = {}) {
+// A fixed `duration` (the fight length picked in the UI) skips the export's length and variation.
+export function simStep(cfg, acc, i, { seed = 1000, duration } = {}) {
   const v = cfg.encounter.variation;
-  const d = cfg.encounter.duration + (v ? (((i * 7919 + seed) % 1000) / 1000 * 2 - 1) * v : 0);
+  const d = duration || cfg.encounter.duration + (v ? (((i * 7919 + seed) % 1000) / 1000 * 2 - 1) * v : 0);
   const r = runBotFight(cfg, { seed: seed + i, duration: d });
   acc.dps.push(r.dps);
   if (Number.isFinite(r.execDps)) acc.exec.push(r.execDps);

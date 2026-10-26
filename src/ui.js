@@ -60,7 +60,7 @@ const app = {
   warnings: [],
   simRef: null,          // {mean, sd, execMean, execSd, n}
   refToken: 0,
-  settings: { countdown: 3, startRage: 0, autoStance: false, length: 60, speed: 1, hints: true, seed: '', runs: 100, mode: 'full' },
+  settings: { countdown: 3, startRage: 85, autoStance: false, length: 60, speed: 1, hints: true, seed: '', runs: 100, mode: 'full' },
   binds: loadBinds(),
   rev: null,
   state: 'idle',         // idle | running | paused | finished
@@ -206,6 +206,7 @@ function startReference() {
   app.simRef = null;
   $('btnPull').disabled = true;
   const total = app.settings.runs;
+  const duration = Number($('lenSel').value) || 60;
   const acc = newAccumulator();
   let i = 0;
   const label = (txt) => { const el = $('refChip'); if (el) el.innerHTML = `Sim reference <b>${txt}</b>`; };
@@ -214,7 +215,7 @@ function startReference() {
   const chunk = () => {
     if (token !== app.refToken) return;
     const end = Math.min(total, i + 10);
-    for (; i < end; i++) simStep(app.cfg, acc, i);
+    for (; i < end; i++) simStep(app.cfg, acc, i, { duration });
     label(`${Math.round((i / total) * 100)}%`);
     if (i < total) { setTimeout(chunk, 0); return; }
     app.simRef = finishAccumulator(acc);
@@ -372,7 +373,7 @@ function beginPull() {
   if (!app.cfg || !app.simRef) return;
   if (!hasName()) { $('nameIn').focus(); return; }
   setPlayerName($('nameIn').value);
-  $('nameIn').blur();   // a focused input would swallow the ability keybinds
+  if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();   // a focused control would swallow the ability keybinds and Esc
   const s = app.settings;
   const cfg = app.cfg;
   const seed = s.seed !== '' && Number.isFinite(Number(s.seed)) ? Number(s.seed) : Math.floor(Math.random() * 1e9);
@@ -952,7 +953,10 @@ window.addEventListener('keydown', (e) => {
   if (tag === 'textarea' || tag === 'input' || tag === 'select') return;
   if (anyDialogOpen() && !(e.code === app.binds.pause)) return;
   // Like WoW, Esc always drops a queued Heroic Strike (not rebindable).
-  if (e.code === 'Escape' && app.state === 'running') app.sim.cancelHeroicStrike();
+  if (e.code === 'Escape') {
+    if (app.state === 'running') app.sim.cancelHeroicStrike();
+    else if (app.state === 'countdown') togglePause();   // abort the countdown
+  }
   const combo = comboFromKeyEvent(e);
   if (!combo || !app.rev) return;
   const actions = app.rev.get(combo);
@@ -1116,10 +1120,11 @@ async function boot() {
   $('modeSel').value = app.settings.mode || 'full';
   $('lenSel').value = String(app.settings.length || 60);
   $('cdSel').value = String(app.settings.countdown ?? 3);
-  $('rageIn').value = String(app.settings.startRage ?? 0);
+  $('rageIn').value = String(app.settings.startRage ?? 85);
   bindDialogs();
   $('btnKeysPull').addEventListener('click', () => $('btnKeys').click());
   $('btnSettingsPull').addEventListener('click', () => $('btnSettings').click());
+  $('lenSel').addEventListener('change', () => { if (app.cfg && (app.state === 'idle' || app.state === 'finished')) startReference(); });
   $('nameIn').value = getPlayer().name;
   $('nameIn').addEventListener('input', syncPull);
   $('nameIn').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); if (!$('btnPull').disabled) startPull(); } });

@@ -32,7 +32,7 @@ First run loads a default P6 Fury warrior (baseline buffs, talents and rotation 
    breakdown and a replay timeline with late presses marked.
 
 The pull window also sets a **countdown** (none, 3, 5 or 10 seconds; Esc cancels it) and your **starting rage** (0 to 100), which apply to both modes. Modes: **Full pull**, and **Execute drill** (boss starts at 25% health).
-**Esc** pauses. Settings has slow motion (0.5× / 0.25×), a hint that estimates time to kill, a fixed random seed, and the
+**P** pauses. Settings has slow motion (0.5× / 0.25×), a hint that estimates time to kill, a fixed random seed, and the
 number of reference runs.
 
 ## Parses and the scoreboard
@@ -51,14 +51,14 @@ Everything is rebindable (**Keybinds** button): click an action, press a key. Mo
 side buttons and scroll wheel (up/down) work, a key can fire several actions like a macro (one global-cooldown ability plus any off-GCD ones such as trinkets, potion, Bloodrage, Heroic Strike, so Death Wish + Kiss of the Spider can share a key; two GCD abilities on one key swap), Backspace clears, and you can export/import your layout as JSON. Binds are saved in
 the browser.
 
-Defaults: `1` Bloodthirst, `2` Whirlwind, `3` queue Heroic Strike, `F` cancels the queued Heroic Strike (rebindable; `Esc` always cancels it too, like WoW, and also pauses by default) (queue it to drop the off-hand miss penalty, then cancel before it fires), `4` Overpower, `5` Execute,
+Defaults: `1` Bloodthirst, `2` Whirlwind, `3` queue Heroic Strike, `F` cancels the queued Heroic Strike (rebindable; `Esc` always cancels it too, like WoW) (queue it to drop the off-hand miss penalty, then cancel before it fires), `4` Overpower, `5` Execute,
 `6` Hamstring, `Z` Death Wish, `X` Recklessness, `C` Blood Fury, `V` Bloodrage, `G` potion, `B` sapper, `F1`/`F2`
-trinkets, `Q`/`E` stances, `Space` pull, `Esc` pause.
+trinkets, `Q`/`E` stances, `Space` pull, `P` pause.
 
 ## How the "sim DPS" reference is made
 
 `src/bot.js` plays your character with the **priority list from your own WoWSims export** (`player.rotation.priorityList`),
-over many fights with randomized length, and averages the DPS. That is the number you are compared to. It is the same
+over many fights of the **fight length you picked in the dropdown**, and averages the DPS. That is the number you are compared to. It is the same
 idea as a WoWSims run, but this is a separate re-implementation: expect it to be close, not identical, to your sim.
 
 ## Compare with the ideal rotation
