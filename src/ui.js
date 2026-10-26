@@ -941,6 +941,8 @@ window.addEventListener('keydown', (e) => {
   const tag = (e.target.tagName || '').toLowerCase();
   if (tag === 'textarea' || tag === 'input' || tag === 'select') return;
   if (anyDialogOpen() && !(e.code === app.binds.pause)) return;
+  // Like WoW, Esc always drops a queued Heroic Strike (not rebindable).
+  if (e.code === 'Escape' && app.state === 'running') app.sim.cancelHeroicStrike();
   const combo = comboFromKeyEvent(e);
   if (!combo || !app.rev) return;
   const actions = app.rev.get(combo);

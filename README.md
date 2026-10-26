@@ -51,7 +51,7 @@ Everything is rebindable (**Keybinds** button): click an action, press a key. Mo
 side buttons and scroll wheel (up/down) work, a key can fire several actions like a macro (one global-cooldown ability plus any off-GCD ones such as trinkets, potion, Bloodrage, Heroic Strike, so Death Wish + Kiss of the Spider can share a key; two GCD abilities on one key swap), Backspace clears, and you can export/import your layout as JSON. Binds are saved in
 the browser.
 
-Defaults: `1` Bloodthirst, `2` Whirlwind, `3` queue Heroic Strike, `F` cancel the queued Heroic Strike (queue it to drop the off-hand miss penalty, then cancel before it fires), `4` Overpower, `5` Execute,
+Defaults: `1` Bloodthirst, `2` Whirlwind, `3` queue Heroic Strike, `F` cancels the queued Heroic Strike (rebindable; `Esc` always cancels it too, like WoW, and also pauses by default) (queue it to drop the off-hand miss penalty, then cancel before it fires), `4` Overpower, `5` Execute,
 `6` Hamstring, `Z` Death Wish, `X` Recklessness, `C` Blood Fury, `V` Bloodrage, `G` potion, `B` sapper, `F1`/`F2`
 trinkets, `Q`/`E` stances, `Space` pull, `Esc` pause.
 

@@ -5,7 +5,7 @@ export const BIND_ACTIONS = [
   { id: 'bt', label: 'Bloodthirst' },
   { id: 'ww', label: 'Whirlwind' },
   { id: 'hs', label: 'Heroic Strike (queue)' },
-  { id: 'hsCancel', label: 'Cancel queued Heroic Strike' },
+  { id: 'hsCancel', label: 'Cancel queued Heroic Strike (Esc always does)' },
   { id: 'op', label: 'Overpower' },
   { id: 'exec', label: 'Execute' },
   { id: 'ham', label: 'Hamstring' },
