@@ -326,7 +326,11 @@ function dispatchAction(action) {
   else {
     if (app.failed[res.reason] !== undefined) app.failed[res.reason]++;
     toast(REASONS[res.reason] || 'Cannot do that');
-    if (refs) { refs.el.classList.remove('fail'); void refs.el.offsetWidth; refs.el.classList.add('fail'); }
+    if (refs) {
+      refs.el.classList.remove('fail'); void refs.el.offsetWidth; refs.el.classList.add('fail');
+      clearTimeout(refs.failTimer);
+      refs.failTimer = setTimeout(() => refs.el.classList.remove('fail'), 300);
+    }
   }
 }
 
