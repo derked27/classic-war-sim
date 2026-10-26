@@ -20,6 +20,7 @@ h2 { font-size: 13px; margin: 0 0 8px; text-transform: uppercase; letter-spacing
 .btn { background: var(--panel2); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; font: inherit; cursor: pointer; }
 .btn:hover { border-color: var(--gold); }
 .btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.muted { color: var(--muted, #9a8f7a); border-color: #7a3a3a; }
 .btn.primary { background: #7a5a16; border-color: var(--gold); color: #fff3d6; }
 .btn.primary:hover { background: #8d6a1b; }
 select, input[type=text], input[type=number], textarea { background: #100e0b; color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; font: inherit; }

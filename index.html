@@ -18,6 +18,7 @@
       <button id="btnProfileDelete" class="btn" title="Delete the selected saved character" disabled>Delete</button>
       <button id="btnImport" class="btn">Import character</button>
       <a class="btn" href="scoreboard.html" target="_blank" rel="noopener">Scoreboard</a>
+      <button id="btnMute" class="btn" title="Mute or unmute ability sounds">🔊 Sound</button>
       <button id="btnKeys" class="btn">Keybinds</button>
       <button id="btnSettings" class="btn">Settings</button>
     </div>
@@ -172,7 +173,9 @@
       <p class="sub">Rage uses the live game's conversion (about 231 at level 60). WoWSims uses ~198, so it gives roughly 15% more rage from white hits and your DPS will read lower here than in a WoWSims run.</p>
       <label class="row">Auto stance swap <input type="checkbox" id="setAutoStance"></label>
       <p class="sub">When on, pressing Overpower swaps to Battle Stance first, and Whirlwind or Recklessness swaps to Berserker Stance, like a stance macro. Rage above your Tactical Mastery limit is lost on each swap, as in game.</p>
-      <label class="row">Show boss time hints <input type="checkbox" id="setHints"></label>
+      <label class="row">Ability sounds <input type="checkbox" id="setSound"></label>
+      <label class="row">Sound volume <input type="range" id="setVolume" min="0" max="100" step="5"></label>
+      <label class="row">Show boss time hints<input type="checkbox" id="setHints"></label>
       <label class="row">Random seed (blank = random each pull) <input type="text" id="setSeed" size="10"></label>
       <label class="row">Sim reference runs <input type="number" id="setRuns" min="20" max="1000" step="10"></label>
       <div class="dlgbtns"><span class="spacer"></span><button type="button" class="btn primary" id="btnSettingsClose">Done</button></div>

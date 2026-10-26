@@ -1,5 +1,6 @@
 import { isOutdated, hardRefresh } from './update.js';
 import { VERSION } from './version.js';
+import { unlockSound, setSound, playAbility, playSwing, playLightsaber } from './sound.js';
 import { Sim, STEP, STANCE } from './engine.js';
 import { buildConfig, sheetStats, applyGearSet } from './config.js';
 import { newAccumulator, simStep, finishAccumulator, runBotFight, idealRun } from './bot.js';
@@ -60,7 +61,7 @@ const app = {
   warnings: [],
   simRef: null,          // {mean, sd, execMean, execSd, n}
   refToken: 0,
-  settings: { countdown: 3, startRage: 85, autoStance: false, length: 60, speed: 1, hints: true, seed: '', runs: 100, mode: 'full' },
+  settings: { countdown: 3, startRage: 85, autoStance: false, length: 60, speed: 1, hints: true, seed: '', runs: 100, mode: 'full', sound: true, vol: 20 },
   binds: loadBinds(),
   rev: null,
   state: 'idle',         // idle | running | paused | finished
@@ -86,7 +87,18 @@ function loadSettings() {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (raw) Object.assign(app.settings, JSON.parse(raw));
   } catch { /* ignore */ }
+  applySound();
 }
+function applySound() {
+  setSound({ muted: !app.settings.sound, volume: app.settings.vol / 100 });
+  const btn = $('btnMute');
+  if (btn) {
+    btn.textContent = app.settings.sound ? '🔊 Sound' : '🔇 Muted';
+    btn.classList.toggle('muted', !app.settings.sound);
+  }
+}
+// Browsers keep audio locked until a gesture; any early click or keypress (Pull, name entry) unlocks it.
+['pointerdown', 'keydown'].forEach((t) => window.addEventListener(t, unlockSound, { once: true, capture: true }));
 function saveSettings() {
   try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(app.settings)); } catch { /* ignore */ }
 }
@@ -310,7 +322,8 @@ function dispatchAction(action) {
   const refs = app.actionEls[id];
   if (refs) { refs.el.classList.add('press'); setTimeout(() => refs.el.classList.remove('press'), 80); }
   const res = app.sim.cast(id, { autoStance: !!app.settings.autoStance });
-  if (!res.ok) {
+  if (res.ok) playAbility(id);
+  else {
     if (app.failed[res.reason] !== undefined) app.failed[res.reason]++;
     toast(REASONS[res.reason] || 'Cannot do that');
     if (refs) { refs.el.classList.remove('fail'); void refs.el.offsetWidth; refs.el.classList.add('fail'); }
@@ -574,7 +587,11 @@ function render(final) {
   const evs = sim.events;
   while (app.logIdx < evs.length) {
     const ev = evs[app.logIdx++];
-    if (app.state === 'running') floatText(ev);
+    if (app.state === 'running') {
+      floatText(ev);
+      if (ev.type === 'hit' && ev.white) playSwing(ev.outcome);
+      else if (ev.type === 'proc' && ev.name === 'Windfury') playLightsaber();
+    }
     const l = logLine(ev);
     if (!l) continue;
     const d = document.createElement('div');
@@ -1064,6 +1081,12 @@ function bindDialogs() {
   $('gearSetSel').addEventListener('change', () => applyDefaultGear($('gearSetSel')));
   $('pullGearSel').addEventListener('change', () => applyDefaultGear($('pullGearSel')));
 
+  $('btnMute').addEventListener('click', (e) => {
+    app.settings.sound = !app.settings.sound;
+    applySound();
+    saveSettings();
+    e.currentTarget.blur();
+  });
   $('btnKeys').addEventListener('click', () => { if (app.state === 'running') togglePause(); renderKeysList(); $('keysDlg').showModal(); });
   $('btnKeysClose').addEventListener('click', () => { app.listening = null; $('keysDlg').close(); });
   $('btnKeysReset').addEventListener('click', () => { app.binds = { ...DEFAULT_BINDS }; saveBinds(app.binds); renderKeysList(); refreshKeyLabels(); });
@@ -1091,6 +1114,8 @@ function bindDialogs() {
     $('setSeed').value = s.seed;
     $('setRuns').value = s.runs;
     $('setAutoStance').checked = !!s.autoStance;
+    $('setSound').checked = !!s.sound;
+    $('setVolume').value = s.vol;
     $('settingsDlg').showModal();
   });
   $('btnSettingsClose').addEventListener('click', () => {
@@ -1100,6 +1125,9 @@ function bindDialogs() {
     s.hints = $('setHints').checked;
     s.seed = $('setSeed').value.trim();
     s.autoStance = $('setAutoStance').checked;
+    s.sound = $('setSound').checked;
+    s.vol = Math.max(0, Math.min(100, Number($('setVolume').value)));
+    applySound();
     s.runs = Math.max(20, Math.min(1000, Number($('setRuns').value) || 100));
     saveSettings();
     $('settingsDlg').close();

@@ -1,0 +1,131 @@
+{
+ "bt": [
+  [
+   "SwingWeaponSpecialWarriorA",
+   "SwingWeaponSpecialWarriorB",
+   "SwingWeaponSpecialWarriorC",
+   "SwingWeaponSpecialWarriorD",
+   "SwingWeaponSpecialWarriorE"
+  ],
+  [
+   "RendTarget"
+  ]
+ ],
+ "ww": [
+  [
+   "WhirlwindShort"
+  ]
+ ],
+ "hs": [
+  [
+   "SwingWeaponSpecialWarriorA",
+   "SwingWeaponSpecialWarriorB",
+   "SwingWeaponSpecialWarriorC",
+   "SwingWeaponSpecialWarriorD",
+   "SwingWeaponSpecialWarriorE"
+  ],
+  [
+   "DecisiveStrike"
+  ]
+ ],
+ "op": [
+  [
+   "SwingWeaponSpecialWarriorA",
+   "SwingWeaponSpecialWarriorB",
+   "SwingWeaponSpecialWarriorC",
+   "SwingWeaponSpecialWarriorD",
+   "SwingWeaponSpecialWarriorE"
+  ],
+  [
+   "DecisiveStrike"
+  ]
+ ],
+ "exec": [
+  [
+   "SwingWeaponSpecialWarriorA",
+   "SwingWeaponSpecialWarriorB",
+   "SwingWeaponSpecialWarriorC",
+   "SwingWeaponSpecialWarriorD",
+   "SwingWeaponSpecialWarriorE"
+  ],
+  [
+   "RendTarget"
+  ]
+ ],
+ "ham": [
+  [
+   "SwingWeaponSpecialWarriorA",
+   "SwingWeaponSpecialWarriorB",
+   "SwingWeaponSpecialWarriorC",
+   "SwingWeaponSpecialWarriorD",
+   "SwingWeaponSpecialWarriorE"
+  ],
+  [
+   "RendTarget"
+  ]
+ ],
+ "dw": [
+  [
+   "InnerFireA",
+   "InnerFireB",
+   "InnerFireC"
+  ]
+ ],
+ "reck": [
+  [
+   "RecklessnessTarget"
+  ]
+ ],
+ "br": [
+  [
+   "Cower"
+  ]
+ ],
+ "bf": [
+  [
+   "Cower"
+  ]
+ ],
+ "pot": [
+  [
+   "iDrinking1"
+  ]
+ ],
+ "sap": [
+  [
+   "FireCast"
+  ]
+ ],
+ "stBattle": [
+  [
+   "BattleShoutTarget"
+  ]
+ ],
+ "stBerserker": [
+  [
+   "BattleShoutTarget"
+  ]
+ ],
+ "item": [
+  [
+   "BurningSpirit"
+  ]
+ ],
+ "swingHit": [
+  [
+   "m1hSwordHitPlate1a",
+   "m1hSwordHitPlate1b",
+   "m1hSwordHitPlate1c"
+  ]
+ ],
+ "swingCrit": [
+  [
+   "m1hSwordHitPlateCrit"
+  ]
+ ],
+ "swingMiss": [
+  [
+   "MissWhoosh1Handed"
+  ]
+ ]
+}
