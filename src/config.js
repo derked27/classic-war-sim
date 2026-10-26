@@ -163,7 +163,12 @@ export function buildConfig(json, gd) {
   }
   if (rb.leaderOfThePack) { flat.crit += 3; note('Leader of the Pack', '+3% crit'); }
 
-  const b = p.buffs || {};
+  // Every parse runs with full world buffs, whatever the imported profile had enabled.
+  const b = {
+    ...(p.buffs || {}),
+    rallyingCryOfTheDragonslayer: true, songflowerSerenade: true, fengusFerocity: true,
+    spiritOfZandalar: true, warchiefsBlessing: true, saygesFortune: 'SaygesDamage',
+  };
   if (b.rallyingCryOfTheDragonslayer) { flat.crit += 5; flat.ap += 140; note('Rallying Cry', '+5% crit, +140 AP'); }
   if (b.songflowerSerenade) { flat.str += 15; flat.agi += 15; flat.crit += 5; note('Songflower', '+15 Str/Agi, +5% crit'); }
   if (b.fengusFerocity) { flat.ap += 200; note("Fengus' Ferocity", '+200 AP'); }
