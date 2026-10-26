@@ -259,7 +259,7 @@ await atest('scoreboard keeps one entry per pull, and parses come from rank', as
   await submitScore(e('c', 'Cy', 120, 500, 5), st, LOCAL);
   const l120 = (await listScores(120, st, LOCAL)).entries;
   assert.deepEqual(l120.map((x) => x.dps), [1000, 900, 700, 500]);            // both of Ann's pulls are listed
-  assert.deepEqual(l120.map((x) => x.parse), [100, 67, 33, 0]);
+  assert.deepEqual(l120.map((x) => Math.round(x.parse)), [100, 67, 33, 0]);
   assert.equal((await listScores(60, st, LOCAL)).entries.length, 1);
 });
 

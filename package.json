@@ -8,6 +8,7 @@
     "start": "python -m http.server 8765",
     "test": "node tests/run.js",
     "data": "node tools/build_data.mjs",
-    "gearsets": "node tools/build_gearsets.mjs"
+    "gearsets": "node tools/build_gearsets.mjs",
+    "bump": "node tools/bump-version.mjs"
   }
 }

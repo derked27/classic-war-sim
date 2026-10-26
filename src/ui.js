@@ -1,3 +1,4 @@
+import { checkForUpdate } from './update.js';
 import { Sim, STEP, STANCE } from './engine.js';
 import { buildConfig, sheetStats, applyGearSet } from './config.js';
 import { newAccumulator, simStep, finishAccumulator, runBotFight, idealRun } from './bot.js';
@@ -1247,3 +1248,5 @@ function drawCumulative(cmp) {
     $('cmpCumInfo').textContent = `${t.toFixed(0)}s — you ${fmt(a)}, ideal ${fmt(b)} (${a - b >= 0 ? '+' : ''}${fmt(a - b)})`;
   };
 }
+
+checkForUpdate();

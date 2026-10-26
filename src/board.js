@@ -1,3 +1,4 @@
+import { checkForUpdate } from './update.js';
 import { parseDisplay, parseTier } from './parse.js';
 import { getPlayer, listScores, paginate } from './scores.js';
 
@@ -41,3 +42,5 @@ $('lenSel').addEventListener('change', load);
 $('btnPrev').addEventListener('click', () => { page--; render(); });
 $('btnNext').addEventListener('click', () => { page++; render(); });
 load();
+
+checkForUpdate();
